@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jbwang.cwgl.dao.ManageMapper">
+
+    <sql id="Base_Column_List">
+        manager_id as managerId, manager_name as managerName,  manager_password as managerPassword, load_power as loadPower, manager_touxiang as managerTouxiang, manager_status as managerStatus
+    </sql>
+
+    <select id="loginByNameAndPassword" parameterType="map" resultType="int">
+        select COUNT(1)
+        from t_manager
+        where manager_name=#{managerName} and manager_password=#{managerPassword} and manager_status='1'
+</select>
+
+</mapper>

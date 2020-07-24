@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jbwang.cwgl.dao.AccountMapper">
+
+    <sql id="Base_Column_List">
+        account_id as accountId, acc_name as accountName,  acc_type as accountType, acc_money as accountMoney, acc_beizhu as accountBeizhu, acc_date as accountDate,user_id as userId,acc_status as accountStatus
+    </sql>
+<!--添加账单-->
+    <insert id="addAccount" parameterType="map">
+    INSERT INTO t_account
+    (account_id,acc_name,acc_type,acc_money,acc_beizhu,acc_date,user_id,acc_status)
+    VALUES (#{accountId},#{accountName},#{accountType},#{accountMoney},#{accountBeizhu},#{accountDate},#{userId},'1')
+  </insert>
+    <!--    查询全部账单信息-->
+    <select id="selecAccountInfoByuserId" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Account">
+        select <include refid="Base_Column_List"/>
+        from t_account
+        where user_id=#{userId} and acc_status='1'
+        order by accountDate desc
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+    <!--    查询全部账单信息-->
+    <select id="selecAccountInfoByuserIdTotal" parameterType="java.lang.String" resultType="int">
+        select count(1)
+        from t_account
+        where user_id=#{userId} and acc_status='1'
+    </select>
+<!--修改账单-->
+    <update id="updateAccount" parameterType="map">
+          update t_account
+          set acc_name=#{accountName},acc_type=#{accountType},acc_money=#{accountMoney},acc_beizhu=#{accountBeizhu},acc_date=#{accountDate}
+          where account_id=#{accountId}
+  </update>
+
+<!--    删除账单-->
+    <update id="deleteAccount" parameterType="map">
+          update t_account
+          set acc_status='2'
+          where account_id=#{accountId}
+  </update>
+
+<!--    绘画1-->
+    <select id="pointing" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Account">
+        select SUM(acc_money) as value ,acc_name as name
+        from t_account
+        where user_id=#{userId} and acc_status='1'
+        group by acc_name
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+
+    <!--    绘画2-->
+    <select id="pointing2" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Account">
+        select SUM(acc_money) AS value,user_name AS name
+        from t_account,t_user
+        WHERE acc_type='2' AND acc_status='1' AND t_account.`user_id`=t_user.`user_id`
+        GROUP BY user_name
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+    <!--    绘画3-->
+    <select id="pointing3" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Account">
+        SELECT u.user_name AS name, SUM(ac1.acc_money) AS value,SUM(ac2.acc_money) AS value2
+        FROM t_user u
+        LEFT JOIN t_account ac1 ON ac1.acc_type='2' AND ac1.acc_status='1'  AND ac1.`user_id`=u.`user_id`
+        LEFT JOIN t_account ac2 ON ac2.acc_type='1' AND ac2.acc_status='1'   AND ac2.`user_id`=u.`user_id`
+        WHERE load_power='2' AND user_status='1'
+        GROUP BY u.user_name
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+
+
+    <!--  管理员  查询全部账单信息-->
+    <select id="selecAccountInfoByuserId2" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Account">
+        SELECT   account_id as accountId,acc_date as accountDate,acc_name as accountName,acc_type as accountType,user_name as name,acc_money as accountMoney,acc_beizhu as accountBeizhu
+        FROM t_account a,t_user u
+        WHERE acc_status='1' AND a.user_id=u.user_id
+        <if test="pageSize!=null and pageSize!=''">
+            limit ${pageNo},${pageSize}
+        </if>
+    </select>
+    <!--  管理员  查询全部账单信息-->
+    <select id="selecAccountInfoByuserId2Total" parameterType="java.lang.String" resultType="int">
+        SELECT  count(1)
+        FROM t_account a,t_user u
+        WHERE acc_status='1' AND a.user_id=u.user_id
+    </select>
+</mapper>

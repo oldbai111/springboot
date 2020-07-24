@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jbwang.cwgl.dao.ItemMapper">
+
+    <!--    <sql id="Base_Column_List">-->
+    <!--        manager_id as managerId, manager_name as managerName,  manager_password as managerPassword, load_power as loadPower, manager_touxiang as managerTouxiang, manager_status as managerStatus-->
+    <!--    </sql>-->
+    <!--添加支出申请-->
+    <insert id="addItem" parameterType="map">
+    INSERT INTO t_item
+    (item_id,item_mingcheng,item_money,item_renson,item_date,user_id,item_status)
+    VALUES (#{itemId},#{itemMingcheng},#{itemMoney},#{itemRenson},#{itemDate},#{userId},'1')
+  </insert>
+
+    <!--  管理员  查询项目申请信息-->
+    <select id="selectItemInfo" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Item">
+       select item_id as itemId,item_mingcheng as itemMingcheng,item_money as itemMoney,user_name as name,item_renson as itemRenson,item_status as itemStatus
+       from t_item i,t_user u
+       where item_status='1' and i.user_id=u.user_id
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+
+    <!-- 用户查看审核结果-->
+    <select id="selectItemInfo2" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.Item">
+        select item_id as itemId,item_mingcheng as itemMingcheng,item_money as itemMoney,item_renson as itemRenson,item_status as itemStatus
+        from t_item
+        where  user_id=#{userId}
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+
+<!--    管理员通过审核-->
+    <update id="itemPass" parameterType="map">
+          update t_item
+          set item_status='2'
+          where item_id=#{itemId}
+  </update>
+
+    <!--    管理员拒绝审核-->
+    <update id="itemrefuse" parameterType="map">
+          update t_item
+          set item_status='3'
+          where item_id=#{itemId}
+  </update>
+</mapper>

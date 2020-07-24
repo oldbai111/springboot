@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jbwang.cwgl.dao.UserMapper">
+
+<sql id="Base_Column_List">
+        user_id as userId, user_name as userName, user_sex as userSex, user_password as userPassword, load_power as loadPower, user_touxiang as userTouxiang, user_status as userStatus
+    </sql>
+
+<!--     登录-->
+<select id="loginByNameAndPassword" parameterType="map" resultType="int">
+        select COUNT(1)
+        from t_user
+        where user_name=#{userName} and user_password=#{userPassword} and user_status='1'
+</select>
+
+    <!--获取用户信息-->
+    <select id="selectUserInfoByNameAndPwd" parameterType="map" resultType="com.jbwang.cwgl.entity.User">
+        select <include refid="Base_Column_List" />
+        from t_user
+        where user_name=#{userName} and user_password=#{userPassword} and load_power=#{loadPower} and user_status='1' limit 1
+    </select>
+<!--注册-->
+        <insert id="userZhuce" parameterType="map">
+    INSERT INTO t_user
+    (user_id,user_name,user_sex,user_password,load_power,user_touxiang,user_status)
+    VALUES (#{userId},#{userName},#{userSex},#{userPassword},'2',#{userTouxiang},'1')
+  </insert>
+    <!--获取用户信息-->
+    <select id="selectUserInfo" parameterType="map" resultType="com.jbwang.cwgl.entity.User">
+        select <include refid="Base_Column_List" />
+        from t_user
+        where  user_status='1'
+        <if test="pageNo!=null and pageNo!='' and pageSize!=null and pageSize!=''">
+            limit #{pageNo},#{pageSize}
+        </if>
+    </select>
+
+    <!--修改用户-->
+    <update id="updateuser" parameterType="map">
+          update t_user
+          set user_name=#{userName},user_sex=#{userSex},user_password=#{userPassword},load_power=#{loadPower}
+          where user_id=#{userId}
+  </update>
+
+    <!--删除用户-->
+    <update id="deleteuser" parameterType="map">
+          update t_user
+          set  user_status='2'
+          where user_id=#{userId}
+  </update>
+
+    <!--管理员添加用户-->
+    <insert id="adduser" parameterType="map">
+    INSERT INTO t_user
+    (user_id,user_name,user_sex,user_password,load_power,user_touxiang,user_status)
+    VALUES (#{userId},#{userName},#{userSex},#{userPassword},#{loadPower},#{userTouxiang},'1')
+  </insert>
+<!--修改个人信息-->
+    <select id="selectUserInfoById" parameterType="java.lang.String" resultType="com.jbwang.cwgl.entity.User">
+        select <include refid="Base_Column_List" />
+        from t_user
+        where user_id=#{userId} and user_status='1'
+    </select>
+
+    <update id="saveUserTx" parameterType="map">
+        update t_user
+        set user_touxiang=#{fileName}
+        where user_id = #{id}
+    </update>
+</mapper>
